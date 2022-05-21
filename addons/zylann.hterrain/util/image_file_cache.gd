@@ -41,7 +41,7 @@ func _init(cache_dir: String):
 		var err = dir.make_dir(_cache_dir)
 		if err != OK:
 			_logger.error("Could not create directory {0}, error {1}" \
-				.format([_cache_dir, err]))
+				super.format([_cache_dir, err]))
 	_save_thread_running = true 
 	_saving_thread.start(self, "_save_thread_func")
 
@@ -155,7 +155,7 @@ func load_image(id: int) -> Image:
 	var err = f.open(fpath, File.READ)
 	if err != OK:
 		_logger.error("Could not load cached image from {0}, error {1}" \
-			.format([fpath, err]))
+			super.format([fpath, err]))
 		return null
 	
 	f.seek(info.data_offset)
@@ -173,7 +173,7 @@ func clear():
 	var err := dir.open(_cache_dir)
 	if err != OK:
 		_logger.error("Could not open image file cache directory '{0}'" \
-			.format([_cache_dir]))
+			super.format([_cache_dir]))
 		return
 	
 	err = dir.list_dir_begin(true, true)
@@ -191,14 +191,14 @@ func clear():
 			err = dir.remove(fpath)
 			if err != OK:
 				_logger.error("Failed to delete cache file '{0}'" \
-					.format([_cache_dir.plus_file(fpath)]))
+					super.format([_cache_dir.plus_file(fpath)]))
 
 	_cache_image_info.clear()
 
 
 func _save_thread_func(_unused_userdata):
 	# Threads keep a reference to the function they run.
-	# So if it's a Reference, and that reference owns the thread... we get a cycle.
+	# So if it's a RefCounted, and that reference owns the thread... we get a cycle.
 	# We can break the cycle by removing 1 to the count inside the thread.
 	# The thread's reference will never die unexpectedly because we stop and destroy the thread
 	# in the destructor of the reference.
@@ -229,7 +229,7 @@ func _save_thread_func(_unused_userdata):
 				var err := f.open(path, File.READ_WRITE)
 				if err != OK:
 					call_deferred("_on_error", "Could not open file {0}, error {1}" \
-						.format([path, err]))
+						super.format([path, err]))
 					continue
 			
 			f.seek(item.data_offset)

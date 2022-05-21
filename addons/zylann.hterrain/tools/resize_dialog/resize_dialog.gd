@@ -1,4 +1,4 @@
-tool
+@tool
 extends WindowDialog
 
 const HT_Util = preload("../../util/util.gd")
@@ -42,9 +42,9 @@ const _anchor_icon_names = [
 
 signal permanent_change_performed(message)
 
-onready var _resolution_dropdown = $VBoxContainer/GridContainer/ResolutionDropdown
-onready var _stretch_checkbox = $VBoxContainer/GridContainer/StretchCheckBox
-onready var _anchor_control = $VBoxContainer/GridContainer/HBoxContainer/AnchorControl
+@onready var _resolution_dropdown = $VBoxContainer/GridContainer/ResolutionDropdown
+@onready var _stretch_checkbox = $VBoxContainer/GridContainer/StretchCheckBox
+@onready var _anchor_control = $VBoxContainer/GridContainer/HBoxContainer/AnchorControl
 
 const _resolutions = HTerrainData.SUPPORTED_RESOLUTIONS
 
@@ -84,7 +84,7 @@ func _ready():
 		child.toggle_mode = true
 		child.rect_min_size = child.rect_size
 		child.icon = null
-		child.connect("pressed", self, "_on_AnchorButton_pressed", [i, x, y])
+		child.connect(&"pressed", self._on_AnchorButton_pressed, [i, x, y])
 		child.group = _anchor_button_group
 		_anchor_buttons[i] = child
 		_anchor_buttons_grid[Vector2(x, y)] = child

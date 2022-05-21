@@ -1,11 +1,11 @@
-tool
+@tool
 extends Control
 
 
-export(Texture) var cursor_texture
-export(Texture) var out_of_range_texture
+@export var cursor_texture: Texture2D
+@export var out_of_range_texture: Texture2D
 
-onready var _sprite = $Cursor
+@onready var _sprite = $Cursor
 
 var _pos := Vector2()
 var _rot := 0.0

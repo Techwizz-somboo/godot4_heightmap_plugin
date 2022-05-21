@@ -1,4 +1,4 @@
-tool
+@tool
 
 const HT_Errors = preload("./errors.gd")
 
@@ -47,9 +47,9 @@ static func clamp_int(x: int, a: int, b: int) -> int:
 	return x
 
 
-# CubeMesh doesn't have a wireframe option
+# BoxMesh doesn't have a wireframe option
 static func create_wirecube_mesh(color = Color(1,1,1)) -> Mesh:
-	var positions := PoolVector3Array([
+	var positions := PackedVector3Array([
 		Vector3(0, 0, 0),
 		Vector3(1, 0, 0),
 		Vector3(1, 0, 1),
@@ -59,11 +59,11 @@ static func create_wirecube_mesh(color = Color(1,1,1)) -> Mesh:
 		Vector3(1, 1, 1),
 		Vector3(0, 1, 1),
 	])
-	var colors := PoolColorArray([
+	var colors := PackedColorArray([
 		color, color, color, color,
 		color, color, color, color,
 	])
-	var indices := PoolIntArray([
+	var indices := PackedInt32Array([
 		0, 1,
 		1, 2,
 		2, 3,
@@ -205,11 +205,11 @@ static func get_cropped_image_params(src_w: int, src_h: int, dst_w: int, dst_h: 
 # using https://github.com/godotengine/godot/pull/21806
 # And actually that function does not even work.
 #static func get_shader_param_or_default(mat: Material, name: String):
-#	assert(mat.shader != null)
+#	assert(mat.gdshader != null)
 #	var v = mat.get_shader_param(name)
 #	if v != null:
 #		return v
-#	var params = VisualServer.shader_get_param_list(mat.shader)
+#	var params = RenderingServer.gdshader_get_param_list(mat.gdshader)
 #	for p in params:
 #		if p.name == name:
 #			match p.type:
@@ -219,7 +219,7 @@ static func get_cropped_image_params(src_w: int, src_h: int, dst_w: int, dst_h: 
 #				# however they are not accessible
 #				TYPE_BOOL:
 #					return false
-#				TYPE_REAL:
+#				TYPE_FLOAT:
 #					return 0.0
 #				TYPE_VECTOR2:
 #					return Vector2()
@@ -239,7 +239,7 @@ static func apply_dpi_scale(root: Control, dpi_scale: float):
 	while len(to_process) > 0:
 		var node : Node = to_process[-1]
 		to_process.pop_back()
-		if node is Viewport:
+		if node is SubViewport:
 			continue
 		if node is Control:
 			if node.rect_min_size != Vector2(0, 0):
@@ -272,36 +272,36 @@ static func get_aabb_intersection_with_segment(aabb: AABB,
 	var x_rect = Rect2(aabb.position.y, aabb.position.z, aabb.size.y, aabb.size.z)
 	
 	hit = Plane(Vector3(1, 0, 0), aabb.position.x) \
-		.intersects_segment(segment_begin, segment_end)
+		super.intersects_segment(segment_begin, segment_end)
 	if hit != null and x_rect.has_point(Vector2(hit.y, hit.z)):
 		hits.append(hit)
 	
 	hit = Plane(Vector3(1, 0, 0), aabb.end.x) \
-		.intersects_segment(segment_begin, segment_end)
+		super.intersects_segment(segment_begin, segment_end)
 	if hit != null and x_rect.has_point(Vector2(hit.y, hit.z)):
 		hits.append(hit)
 
 	var y_rect = Rect2(aabb.position.x, aabb.position.z, aabb.size.x, aabb.size.z)
 
 	hit = Plane(Vector3(0, 1, 0), aabb.position.y) \
-		.intersects_segment(segment_begin, segment_end)
+		super.intersects_segment(segment_begin, segment_end)
 	if hit != null and y_rect.has_point(Vector2(hit.x, hit.z)):
 		hits.append(hit)
 	
 	hit = Plane(Vector3(0, 1, 0), aabb.end.y) \
-		.intersects_segment(segment_begin, segment_end)
+		super.intersects_segment(segment_begin, segment_end)
 	if hit != null and y_rect.has_point(Vector2(hit.x, hit.z)):
 		hits.append(hit)
 
 	var z_rect = Rect2(aabb.position.x, aabb.position.y, aabb.size.x, aabb.size.y)
 
 	hit = Plane(Vector3(0, 0, 1), aabb.position.z) \
-		.intersects_segment(segment_begin, segment_end)
+		super.intersects_segment(segment_begin, segment_end)
 	if hit != null and z_rect.has_point(Vector2(hit.x, hit.y)):
 		hits.append(hit)
 	
 	hit = Plane(Vector3(0, 0, 1), aabb.end.z) \
-		.intersects_segment(segment_begin, segment_end)
+		super.intersects_segment(segment_begin, segment_end)
 	if hit != null and z_rect.has_point(Vector2(hit.x, hit.y)):
 		hits.append(hit)
 	
@@ -537,7 +537,7 @@ static func write_import_file(settings: Dictionary, imp_fpath: String, logger) -
 	var err := f.open(imp_fpath, File.WRITE)
 	if err != OK:
 		logger.error("Could not open '{0}' for write, error {1}" \
-			.format([imp_fpath, HT_Errors.get_message(err)]))
+			super.format([imp_fpath, HT_Errors.get_message(err)]))
 		return false
 
 	for section in settings:

@@ -2,7 +2,7 @@
 # Editor-specific utilities.
 # This script cannot be loaded in an exported game.
 
-tool
+@tool
 
 # TODO There is no script API to access editor scale
 # Ported from https://github.com/godotengine/godot/blob/
@@ -42,12 +42,12 @@ static func create_open_file_dialog() -> ConfirmationDialog:
 	var d
 	if Engine.editor_hint:
 		d = EditorFileDialog.new()
-		d.mode = EditorFileDialog.MODE_OPEN_FILE
+		d.mode = EditorFileDialog.FILE_MODE_OPEN_FILE
 		d.access = EditorFileDialog.ACCESS_RESOURCES
 	else:
 		# Duh. I need to be able to test it.
 		d = FileDialog.new()
-		d.mode = FileDialog.MODE_OPEN_FILE
+		d.mode = FileDialog.FILE_MODE_OPEN_FILE
 		d.access = FileDialog.ACCESS_RESOURCES
 	d.resizable = true
 	return d
@@ -57,12 +57,12 @@ static func create_open_dir_dialog() -> ConfirmationDialog:
 	var d
 	if Engine.editor_hint:
 		d = EditorFileDialog.new()
-		d.mode = EditorFileDialog.MODE_OPEN_DIR
+		d.mode = EditorFileDialog.FILE_MODE_OPEN_DIR
 		d.access = EditorFileDialog.ACCESS_RESOURCES
 	else:
 		# Duh. I need to be able to test it.
 		d = FileDialog.new()
-		d.mode = FileDialog.MODE_OPEN_DIR
+		d.mode = FileDialog.FILE_MODE_OPEN_DIR
 		d.access = FileDialog.ACCESS_RESOURCES
 	d.resizable = true
 	return d
@@ -98,20 +98,20 @@ static func _add_image_filters(file_dialog):
 
 static func _add_texture_filters(file_dialog):
 	_add_image_filters(file_dialog)
-	file_dialog.add_filter("*.stex ; StreamTexture files")
+	file_dialog.add_filter("*.stex ; StreamTexture2D files")
 	file_dialog.add_filter("*.packed_tex ; HTerrainPackedTexture files")
 
 
 static func _add_texture_array_filters(file_dialog):
 	_add_image_filters(file_dialog)
-	file_dialog.add_filter("*.texarr ; TextureArray files")
+	file_dialog.add_filter("*.texarr ; Texture2DArray files")
 	file_dialog.add_filter("*.packed_texarr ; HTerrainPackedTextureArray files")
 
 
 # Tries to load a texture with the ResourceLoader, and if it fails, attempts
 # to load it manually as an ImageTexture
-static func load_texture(path: String, logger) -> Texture:
-	var tex : Texture = load(path)
+static func load_texture(path: String, logger) -> Texture2D:
+	var tex : Texture2D = load(path)
 	if tex != null:
 		return tex
 	# This can unfortunately happen when the editor didn't import assets yet.
@@ -123,6 +123,6 @@ static func load_texture(path: String, logger) -> Texture:
 		logger.error(str("Failed to load image ", path))
 		return null
 	var itex := ImageTexture.new()
-	itex.create_from_image(im, Texture.FLAG_FILTER)
+	itex.create_from_image(im, Texture2D.FLAG_FILTER)
 	return itex
 

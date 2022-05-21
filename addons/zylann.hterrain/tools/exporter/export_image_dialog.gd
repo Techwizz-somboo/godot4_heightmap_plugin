@@ -1,4 +1,4 @@
-tool
+@tool
 extends WindowDialog
 
 const HTerrainData = preload("../../hterrain_data.gd")
@@ -12,12 +12,12 @@ const FORMAT_PNG8 = 2
 const FORMAT_EXRH = 3
 const FORMAT_COUNT = 4
 
-onready var _output_path_line_edit := $VB/Grid/OutputPath/HeightmapPathLineEdit as LineEdit
-onready var _format_selector := $VB/Grid/FormatSelector as OptionButton
-onready var _height_range_min_spinbox := $VB/Grid/HeightRange/HeightRangeMin as SpinBox
-onready var _height_range_max_spinbox := $VB/Grid/HeightRange/HeightRangeMax as SpinBox
-onready var _export_button := $VB/Buttons/ExportButton as Button
-onready var _show_in_explorer_checkbox := $VB/ShowInExplorerCheckbox as CheckBox
+@onready var _output_path_line_edit := $VB/Grid/OutputPath/HeightmapPathLineEdit as LineEdit
+@onready var _format_selector := $VB/Grid/FormatSelector as OptionButton
+@onready var _height_range_min_spinbox := $VB/Grid/HeightRange/HeightRangeMin as SpinBox
+@onready var _height_range_max_spinbox := $VB/Grid/HeightRange/HeightRangeMax as SpinBox
+@onready var _export_button := $VB/Buttons/ExportButton as Button
+@onready var _show_in_explorer_checkbox := $VB/ShowInExplorerCheckbox as CheckBox
 
 var _terrain = null
 var _file_dialog : EditorFileDialog = null
@@ -48,10 +48,10 @@ func _ready():
 func setup_dialogs(base_control):
 	assert(_file_dialog == null)
 	var fd := EditorFileDialog.new()
-	fd.mode = EditorFileDialog.MODE_SAVE_FILE
+	fd.mode = EditorFileDialog.FILE_MODE_SAVE_FILE
 	fd.resizable = true
 	fd.access = EditorFileDialog.ACCESS_FILESYSTEM
-	fd.connect("file_selected", self, "_on_FileDialog_file_selected")
+	fd.connect(&"file_selected", self._on_FileDialog_file_selected)
 	base_control.add_child(fd)
 	_file_dialog = fd
 	
@@ -179,7 +179,7 @@ func _update_file_extension():
 
 func _print_file_error(fpath, err):
 	_logger.error("Could not save path {0}, error: {1}" \
-		.format([fpath, HT_Errors.get_message(err)]))
+		super.format([fpath, HT_Errors.get_message(err)]))
 
 
 func _on_CancelButton_pressed():

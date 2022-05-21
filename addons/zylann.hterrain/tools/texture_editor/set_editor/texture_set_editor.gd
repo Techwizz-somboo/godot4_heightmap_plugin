@@ -1,4 +1,4 @@
-tool
+@tool
 extends Control
 
 const HTerrainTextureSet = preload("../../../hterrain_texture_set.gd")
@@ -6,28 +6,28 @@ const HT_EditorUtil = preload("../../util/editor_util.gd")
 const HT_Util = preload("../../../util/util.gd")
 const HT_Logger = preload("../../../util/logger.gd")
 
-const HT_ColorShader = preload("../display_color.shader")
-const HT_ColorSliceShader = preload("../display_color_slice.shader")
-const HT_AlphaShader = preload("../display_alpha.shader")
-const HT_AlphaSliceShader = preload("../display_alpha_slice.shader")
+const HT_ColorShader = preload("../display_color.gdshader")
+const HT_ColorSliceShader = preload("../display_color_slice.gdshader")
+const HT_AlphaShader = preload("../display_alpha.gdshader")
+const HT_AlphaSliceShader = preload("../display_alpha_slice.gdshader")
 # TODO Can't preload because it causes the plugin to fail loading if assets aren't imported
 #const HT_EmptyTexture = preload("../../icons/empty.png")
 const EMPTY_TEXTURE_PATH = "res://addons/zylann.hterrain/tools/icons/empty.png"
 
 signal import_selected
 
-onready var _slots_list = $VB/HS/VB/SlotsList
-onready var _albedo_preview = $VB/HS/VB2/GC/AlbedoPreview
-onready var _bump_preview = $VB/HS/VB2/GC/BumpPreview
-onready var _normal_preview = $VB/HS/VB2/GC/NormalPreview
-onready var _roughness_preview = $VB/HS/VB2/GC/RoughnessPreview
-onready var _load_albedo_button = $VB/HS/VB2/GC/LoadAlbedo
-onready var _load_normal_button = $VB/HS/VB2/GC/LoadNormal
-onready var _clear_albedo_button = $VB/HS/VB2/GC/ClearAlbedo
-onready var _clear_normal_button = $VB/HS/VB2/GC/ClearNormal
-onready var _mode_selector = $VB/HS/VB2/GC2/ModeSelector
-onready var _add_slot_button = $VB/HS/VB/HB/AddSlot
-onready var _remove_slot_button = $VB/HS/VB/HB/RemoveSlot
+@onready var _slots_list = $VB/HS/VB/SlotsList
+@onready var _albedo_preview = $VB/HS/VB2/GC/AlbedoPreview
+@onready var _bump_preview = $VB/HS/VB2/GC/BumpPreview
+@onready var _normal_preview = $VB/HS/VB2/GC/NormalPreview
+@onready var _roughness_preview = $VB/HS/VB2/GC/RoughnessPreview
+@onready var _load_albedo_button = $VB/HS/VB2/GC/LoadAlbedo
+@onready var _load_normal_button = $VB/HS/VB2/GC/LoadNormal
+@onready var _clear_albedo_button = $VB/HS/VB2/GC/ClearAlbedo
+@onready var _clear_normal_button = $VB/HS/VB2/GC/ClearNormal
+@onready var _mode_selector = $VB/HS/VB2/GC2/ModeSelector
+@onready var _add_slot_button = $VB/HS/VB/HB/AddSlot
+@onready var _remove_slot_button = $VB/HS/VB/HB/RemoveSlot
 
 var _texture_set : HTerrainTextureSet
 var _undo_redo : UndoRedo
@@ -51,22 +51,22 @@ func _ready():
 
 func setup_dialogs(parent: Node):
 	var d = HT_EditorUtil.create_open_texture_dialog()
-	d.connect("file_selected", self, "_on_LoadTextureDialog_file_selected")
+	d.connect(&"file_selected", self._on_LoadTextureDialog_file_selected)
 	_load_texture_dialog = d
 	parent.add_child(d)
 
 	d = HT_EditorUtil.create_open_texture_array_dialog()
-	d.connect("file_selected", self, "_on_LoadTextureArrayDialog_file_selected")
+	d.connect(&"file_selected", self._on_LoadTextureArrayDialog_file_selected)
 	_load_texture_array_dialog = d
 	parent.add_child(d)
 	
 	d = ConfirmationDialog.new()
-	d.connect("confirmed", self, "_on_ModeConfirmationDialog_confirmed")
+	d.connect(&"confirmed", self._on_ModeConfirmationDialog_confirmed)
 	# This is ridiculous.
 	# See https://github.com/godotengine/godot/issues/17460
-#	d.connect("modal_closed", self, "_on_ModeConfirmationDialog_cancelled")
-#	d.get_close_button().connect("pressed", self, "_on_ModeConfirmationDialog_cancelled")
-#	d.get_cancel().connect("pressed", self, "_on_ModeConfirmationDialog_cancelled")
+#	d.connect(&"modal_closed", self._on_ModeConfirmationDialog_cancelled)
+#	d.get_close_button().connect(&"pressed", self._on_ModeConfirmationDialog_cancelled)
+#	d.get_cancel().connect(&"pressed", self._on_ModeConfirmationDialog_cancelled)
 	_mode_confirmation_dialog = d
 	parent.add_child(d)
 
@@ -97,12 +97,12 @@ func set_texture_set(texture_set: HTerrainTextureSet):
 		return
 	
 	if _texture_set != null:
-		_texture_set.disconnect("changed", self, "_on_texture_set_changed")
+		_texture_set.disconnect(&"changed", self._on_texture_set_changed)
 
 	_texture_set = texture_set
 	
 	if _texture_set != null:
-		_texture_set.connect("changed", self, "_on_texture_set_changed")
+		_texture_set.connect(&"changed", self._on_texture_set_changed)
 		_update_ui_from_data()
 
 
@@ -117,7 +117,7 @@ func _update_ui_from_data():
 	
 	var slots_count := _texture_set.get_slots_count()
 	for slot_index in slots_count:
-		_slots_list.add_item("Texture {0}".format([slot_index]))
+		_slots_list.add_item("Texture2D {0}".format([slot_index]))
 	
 	_set_selected_id(_mode_selector, _texture_set.get_mode())
 	
@@ -217,10 +217,10 @@ func _select_slot(slot_index: int):
 		_normal_preview.hint_tooltip = _get_resource_path_or_empty(normal_tex)
 		_roughness_preview.hint_tooltip = _get_resource_path_or_empty(normal_tex)
 
-		_albedo_preview.material.shader = HT_ColorShader
-		_bump_preview.material.shader = HT_AlphaShader
-		_normal_preview.material.shader = HT_ColorShader
-		_roughness_preview.material.shader = HT_AlphaShader
+		_albedo_preview.material.gdshader = HT_ColorShader
+		_bump_preview.material.gdshader = HT_AlphaShader
+		_normal_preview.material.gdshader = HT_ColorShader
+		_roughness_preview.material.gdshader = HT_AlphaShader
 		
 		_albedo_preview.material.set_shader_param("u_texture_array", null)
 		_bump_preview.material.set_shader_param("u_texture_array", null)
@@ -241,11 +241,11 @@ func _select_slot(slot_index: int):
 		_normal_preview.hint_tooltip = _get_resource_path_or_empty(normal_tex)
 		_roughness_preview.hint_tooltip = _get_resource_path_or_empty(normal_tex)
 		
-		_albedo_preview.material.shader = HT_ColorSliceShader
-		_bump_preview.material.shader = HT_AlphaSliceShader
-		_normal_preview.material.shader = \
+		_albedo_preview.material.gdshader = HT_ColorSliceShader
+		_bump_preview.material.gdshader = HT_AlphaSliceShader
+		_normal_preview.material.gdshader = \
 			HT_ColorSliceShader if normal_tex != null else HT_ColorShader
-		_roughness_preview.material.shader = \
+		_roughness_preview.material.gdshader = \
 			HT_AlphaSliceShader if normal_tex != null else HT_AlphaShader
 		
 		_albedo_preview.material.set_shader_param("u_texture_array", albedo_tex)
@@ -329,7 +329,7 @@ func _on_LoadNormal_pressed():
 	_open_load_texture_dialog(HTerrainTextureSet.TYPE_NORMAL_ROUGHNESS)
 
 
-func _set_texture_action(slot_index: int, texture: Texture, type: int):
+func _set_texture_action(slot_index: int, texture: Texture2D, type: int):
 	var prev_texture = _texture_set.get_texture(slot_index, type)
 	
 	_undo_redo.create_action("HTerrainTextureSet: load texture")
@@ -353,7 +353,7 @@ func _set_texture_action(slot_index: int, texture: Texture, type: int):
 	_undo_redo.commit_action()
 
 
-func _set_texture_array_action(slot_index: int, texture_array: TextureArray, type: int):
+func _set_texture_array_action(slot_index: int, texture_array: Texture2DArray, type: int):
 	var prev_texture_array = _texture_set.get_texture_array(type)
 	
 	_undo_redo.create_action("HTerrainTextureSet: load texture array")

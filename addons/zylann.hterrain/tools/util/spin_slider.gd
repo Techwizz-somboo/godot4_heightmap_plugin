@@ -1,4 +1,4 @@
-tool
+@tool
 extends Control
 
 const FG_MARGIN = 2
@@ -6,18 +6,45 @@ const MAX_DECIMALS_VISUAL = 3
 
 signal value_changed(value)
 
-export var _value := 0.0 setget set_value_no_notify
-export var _min_value := 0.0 setget set_min_value
-export var _max_value := 100.0 setget set_max_value
-export var _prefix := "" setget set_prefix
-export var _suffix := "" setget set_suffix
-export var _rounded := false setget set_rounded
-export var _centered := true setget set_centered
-export var _allow_greater := false setget set_allow_greater
+@export var _value := 0.0:
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_value_no_notify(value)
+@export var _min_value := 0.0:
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_min_value(value)
+@export var _max_value := 100.0:
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_max_value(value)
+@export var _prefix := "":
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_prefix(value)
+@export var _suffix := "":
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_suffix(value)
+@export var _rounded := false:
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_rounded(value)
+@export var _centered := true:
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_centered(value)
+@export var _allow_greater := false:
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_allow_greater(value)
 # There is still a limit when typing a larger value, but this one is to prevent software
 # crashes or freezes. The regular min and max values are for slider UX. Exceeding it should be 
 # a corner case.
-export var _greater_max_value := 10000.0 setget set_greater_max_value
+@export var _greater_max_value := 10000.0:
+	set(value):
+		# TODO: Manually copy the code from this method.
+		set_greater_max_value(value)
 
 var _label : Label
 var _label2 : Label
@@ -69,9 +96,9 @@ func _init():
 	_line_edit.anchor_left = 0
 	_line_edit.anchor_right = 1
 	_line_edit.anchor_bottom = 1
-	_line_edit.connect("gui_input", self, "_on_LineEdit_gui_input")
-	_line_edit.connect("focus_exited", self, "_on_LineEdit_focus_exited")
-	_line_edit.connect("text_entered", self, "_on_LineEdit_text_entered")
+	_line_edit.connect(&"gui_input", self._on_LineEdit_gui_input)
+	_line_edit.connect(&"focus_exited", self._on_LineEdit_focus_exited)
+	_line_edit.connect(&"text_entered", self._on_LineEdit_text_entered)
 	_line_edit.hide()
 	add_child(_line_edit)
 	
@@ -253,11 +280,11 @@ func _show_line_edit():
 func _gui_input(event):
 	if event is InputEventMouseButton:
 		if event.pressed:
-			if event.button_index == BUTTON_LEFT:
+			if event.button_index == MOUSE_BUTTON_LEFT:
 				_press_pos = event.position
 				_pressing = true
 		else:
-			if event.button_index == BUTTON_LEFT:
+			if event.button_index == MOUSE_BUTTON_LEFT:
 				_pressing = false
 				if _grabbing:
 					_grabbing = false

@@ -1,4 +1,4 @@
-tool
+@tool
 extends Control
 
 # TODO Can't preload because it causes the plugin to fail loading if assets aren't imported
@@ -9,10 +9,10 @@ signal load_pressed
 signal clear_pressed
 
 
-onready var _label = $Label
-onready var _texture_rect = $TextureRect
+@onready var _label = $Label
+@onready var _texture_rect = $TextureRect
 
-onready var _buttons = [
+@onready var _buttons = [
 	$LoadButton,
 	$ClearButton
 ]
@@ -25,7 +25,7 @@ func set_label(text: String):
 	_label.text = text
 
 
-func set_texture(tex: Texture):
+func set_texture(tex: Texture2D):
 	if tex == null:
 		_texture_rect.texture = load(EMPTY_TEXTURE_PATH)
 		_texture_rect.material = null

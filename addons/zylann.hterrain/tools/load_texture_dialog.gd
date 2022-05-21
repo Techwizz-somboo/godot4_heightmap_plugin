@@ -1,16 +1,16 @@
-tool
+@tool
 extends EditorFileDialog
 
 
 func _init():
 	#access = EditorFileDialog.ACCESS_RESOURCES
-	mode = EditorFileDialog.MODE_OPEN_FILE
+	mode = EditorFileDialog.FILE_MODE_OPEN_FILE
 	# TODO I actually want a dialog to load a texture, not specifically a PNG...
 	add_filter("*.png ; PNG files")
 	add_filter("*.jpg ; JPG files")
 	resizable = true
 	access = EditorFileDialog.ACCESS_RESOURCES
-	connect("popup_hide", self, "call_deferred", ["_on_close"])
+	connect(&"popup_hide", self.call_deferred, ["_on_close"])
 
 
 func _on_close():

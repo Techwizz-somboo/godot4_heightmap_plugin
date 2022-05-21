@@ -1,6 +1,6 @@
 
 # Note: `tool` is optional but without it there are no error reporting in the editor
-tool
+@tool
 
 # TODO Remove grid_ prefixes, context is already given by the script itself
 

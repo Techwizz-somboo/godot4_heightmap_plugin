@@ -2,7 +2,7 @@
 # Passes can have different shaders and re-use what was drawn by a previous pass.
 # TODO I'd like to make such a system working as a graph of passes for more possibilities.
 
-tool
+@tool
 extends Node
 
 const HT_Util = preload("res://addons/zylann.hterrain/util/util.gd")
@@ -20,12 +20,12 @@ signal completed
 var _passes := []
 var _resolution := Vector2(512, 512)
 var _output_padding := [0, 0, 0, 0]
-var _viewport : Viewport = null
+var _viewport : SubViewport = null
 var _ci : TextureRect = null
-var _dummy_texture : Texture
+var _dummy_texture : Texture2D
 var _running := false
 var _rerun := false
-#var _tiles = PoolVector2Array([Vector2()])
+#var _tiles = PackedVector2Array([Vector2()])
 
 var _running_passes := []
 var _running_pass_index := 0
@@ -40,11 +40,11 @@ func _ready():
 	assert(_viewport == null)
 	assert(_ci == null)
 
-	_viewport = Viewport.new()
+	_viewport = SubViewport.new()
 	_viewport.own_world = true
-	_viewport.world = World.new()
+	_viewport.world = World3D.new()
 	_viewport.render_target_v_flip = true
-	_viewport.render_target_update_mode = Viewport.UPDATE_DISABLED
+	_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	add_child(_viewport)
 	
 	_dummy_texture = load(DUMMY_TEXTURE_PATH)
@@ -137,8 +137,8 @@ func run():
 	_ci.rect_size = padded_size
 
 	_viewport.size = padded_size
-	_viewport.render_target_update_mode = Viewport.UPDATE_ALWAYS
-	_viewport.render_target_clear_mode = Viewport.CLEAR_MODE_ONLY_NEXT_FRAME
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONLY_NEXT_FRAME
 
 	_running_pass_index = 0
 	_running_iteration = 0
@@ -168,7 +168,7 @@ func _process(delta: float):
 			_rerun = false
 			run()
 		else:
-			_viewport.render_target_update_mode = Viewport.UPDATE_DISABLED
+			_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 			set_process(false)
 			return
 	
@@ -195,10 +195,10 @@ func _setup_pass(p: HT_TextureGeneratorPass):
 	else:
 		_ci.texture = _dummy_texture
 
-	if p.shader != null:
+	if p.gdshader != null:
 		if _shader_material == null:
 			_shader_material = ShaderMaterial.new()
-		_shader_material.shader = p.shader
+		_shader_material.gdshader = p.gdshader
 		
 		_ci.material = _shader_material
 		
@@ -225,7 +225,7 @@ func _setup_pass(p: HT_TextureGeneratorPass):
 		_ci.material = null
 
 	if p.clear:
-		_viewport.render_target_clear_mode = Viewport.CLEAR_MODE_ONLY_NEXT_FRAME
+		_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONLY_NEXT_FRAME
 
 
 func _create_output_image(metadata):

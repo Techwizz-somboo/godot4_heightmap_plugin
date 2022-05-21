@@ -1,4 +1,4 @@
-tool
+@tool
 extends Resource
 
 const MODE_TEXTURES = 0
@@ -37,7 +37,7 @@ const _src_default_color_codes = [
 # TODO We may get rid of modes in the future, and only use TextureArrays.
 # It exists for now for backward compatibility, but it makes the API a bit confusing
 var _mode = MODE_TEXTURES
-# [type][slot] -> StreamTexture or TextureArray
+# [type][slot] -> StreamTexture2D or Texture2DArray
 var _textures = [[], []]
 
 
@@ -120,7 +120,7 @@ func get_texture_count() -> int:
 	return len(texs)
 
 
-func get_texture(slot_index: int, ground_texture_type: int) -> Texture:
+func get_texture(slot_index: int, ground_texture_type: int) -> Texture2D:
 	if _mode != MODE_TEXTURES:
 		return null
 	var texs = _textures[ground_texture_type]
@@ -129,7 +129,7 @@ func get_texture(slot_index: int, ground_texture_type: int) -> Texture:
 	return texs[slot_index]
 
 
-func set_texture(slot_index: int, ground_texture_type: int, texture: Texture):
+func set_texture(slot_index: int, ground_texture_type: int, texture: Texture2D):
 	assert(_mode == MODE_TEXTURES)
 	var texs = _textures[ground_texture_type]
 	if texs[slot_index] != texture:
@@ -137,14 +137,14 @@ func set_texture(slot_index: int, ground_texture_type: int, texture: Texture):
 		emit_changed()
 
 
-func get_texture_array(ground_texture_type: int) -> TextureArray:
+func get_texture_array(ground_texture_type: int) -> Texture2DArray:
 	if _mode != MODE_TEXTURE_ARRAYS:
 		return null
 	var texs = _textures[ground_texture_type]
 	return texs[0]
 
 
-func set_texture_array(ground_texture_type: int, texarray: TextureArray):
+func set_texture_array(ground_texture_type: int, texarray: Texture2DArray):
 	assert(_mode == MODE_TEXTURE_ARRAYS)
 	var texs = _textures[ground_texture_type]
 	if texs[0] != texarray:
@@ -229,14 +229,14 @@ func emit_changed():
 #	
 #	if terrain.is_using_texture_array():
 #		for type in TYPE_COUNT:
-#			var tex : TextureArray = terrain.get_ground_texture_array(type)
+#			var tex : Texture2DArray = terrain.get_ground_texture_array(type)
 #			textures[type] = [tex]
 #		_mode = MODE_TEXTURE_ARRAYS
 #		
 #	else:
 #		for index in terrain.get_max_ground_texture_slot_count():
 #			for type in TYPE_COUNT:
-#				var tex : Texture = terrain.get_ground_texture(type, index)
+#				var tex : Texture2D = terrain.get_ground_texture(type, index)
 #				textures[type].append(tex)
 #		_mode = MODE_TEXTURES
 #	

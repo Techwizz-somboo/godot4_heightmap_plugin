@@ -1,4 +1,4 @@
-tool
+@tool
 extends AcceptDialog
 
 const HT_Util = preload("../../../util/util.gd")
@@ -6,20 +6,20 @@ const HT_Brush = preload("../brush.gd")
 const HT_Logger = preload("../../../util/logger.gd")
 const HT_EditorUtil = preload("../../util/editor_util.gd")
 
-onready var _scratchpad = $VB/HB/VB3/PreviewScratchpad
+@onready var _scratchpad = $VB/HB/VB3/PreviewScratchpad
 
-onready var _shape_list = $VB/HB/VB/ShapeList
-onready var _remove_shape_button = $VB/HB/VB/HBoxContainer/RemoveShape
-onready var _change_shape_button = $VB/HB/VB/ChangeShape
+@onready var _shape_list = $VB/HB/VB/ShapeList
+@onready var _remove_shape_button = $VB/HB/VB/HBoxContainer/RemoveShape
+@onready var _change_shape_button = $VB/HB/VB/ChangeShape
 
-onready var _size_slider = $VB/HB/VB2/Settings/Size
-onready var _opacity_slider = $VB/HB/VB2/Settings/Opacity
-onready var _pressure_enabled_checkbox = $VB/HB/VB2/Settings/PressureEnabled
-onready var _pressure_over_size_slider = $VB/HB/VB2/Settings/PressureOverSize
-onready var _pressure_over_opacity_slider = $VB/HB/VB2/Settings/PressureOverOpacity
-onready var _frequency_distance_slider = $VB/HB/VB2/Settings/FrequencyDistance
-onready var _frequency_time_slider = $VB/HB/VB2/Settings/FrequencyTime
-onready var _random_rotation_checkbox = $VB/HB/VB2/Settings/RandomRotation
+@onready var _size_slider = $VB/HB/VB2/Settings/Size
+@onready var _opacity_slider = $VB/HB/VB2/Settings/Opacity
+@onready var _pressure_enabled_checkbox = $VB/HB/VB2/Settings/PressureEnabled
+@onready var _pressure_over_size_slider = $VB/HB/VB2/Settings/PressureOverSize
+@onready var _pressure_over_opacity_slider = $VB/HB/VB2/Settings/PressureOverOpacity
+@onready var _frequency_distance_slider = $VB/HB/VB2/Settings/FrequencyDistance
+@onready var _frequency_time_slider = $VB/HB/VB2/Settings/FrequencyTime
+@onready var _random_rotation_checkbox = $VB/HB/VB2/Settings/RandomRotation
 
 var _brush : HT_Brush
 # This is a `EditorFileDialog`,
@@ -53,13 +53,13 @@ func set_brush(brush : HT_Brush):
 func setup_dialogs(base_control: Control):
 	assert(_load_image_dialog == null)
 	_load_image_dialog = HT_EditorUtil.create_open_file_dialog()
-	_load_image_dialog.mode = EditorFileDialog.MODE_OPEN_FILE
+	_load_image_dialog.mode = EditorFileDialog.FILE_MODE_OPEN_FILE
 	_load_image_dialog.add_filter("*.exr ; EXR files")
 	_load_image_dialog.resizable = true
 	_load_image_dialog.access = EditorFileDialog.ACCESS_FILESYSTEM
 	_load_image_dialog.current_dir = HT_Brush.SHAPES_DIR
-	_load_image_dialog.connect("file_selected", self, "_on_LoadImageDialog_file_selected")
-	_load_image_dialog.connect("files_selected", self, "_on_LoadImageDialog_files_selected")
+	_load_image_dialog.connect(&"file_selected", self._on_LoadImageDialog_file_selected)
+	_load_image_dialog.connect(&"files_selected", self._on_LoadImageDialog_files_selected)
 	base_control.add_child(_load_image_dialog)
 
 
@@ -82,14 +82,14 @@ func _update_shapes_gui(shapes: Array):
 	_shape_list.clear()
 	for shape in shapes:
 		assert(shape != null)
-		assert(shape is Texture)
+		assert(shape is Texture2D)
 		_shape_list.add_icon_item(shape)
 	_update_shape_list_buttons()
 
 
 func _on_AddShape_pressed():
 	_load_image_index = -1
-	_load_image_dialog.mode = EditorFileDialog.MODE_OPEN_FILES
+	_load_image_dialog.mode = EditorFileDialog.FILE_MODE_OPEN_FILE
 	_load_image_dialog.popup_centered_ratio(0.7)
 
 
@@ -121,11 +121,11 @@ func _on_ChangeShape_pressed():
 
 func _request_modify_shape(index: int):
 	_load_image_index = index
-	_load_image_dialog.mode = EditorFileDialog.MODE_OPEN_FILE
+	_load_image_dialog.mode = EditorFileDialog.FILE_MODE_OPEN_FILE
 	_load_image_dialog.popup_centered_ratio(0.7)
 
 
-func _on_LoadImageDialog_files_selected(fpaths: PoolStringArray):
+func _on_LoadImageDialog_files_selected(fpaths: PackedStringArray):
 	var shapes := _get_shapes_from_gui()
 	
 	for fpath in fpaths:

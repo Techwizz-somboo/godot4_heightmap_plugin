@@ -1,4 +1,4 @@
-tool
+@tool
 extends Control
 
 const HTerrainTextureSet = preload("../../../hterrain_texture_set.gd")
@@ -14,7 +14,7 @@ const HT_PackedTextureImporter = preload("../../packed_textures/packed_texture_i
 const HT_PackedTextureArrayImporter = \
 	preload("../../packed_textures/packed_texture_array_importer.gd")
 
-const HT_NormalMapPreviewShader = preload("../display_normal.shader")
+const HT_NormalMapPreviewShader = preload("../display_normal.gdshader")
 
 const COMPRESS_RAW = 0
 const COMPRESS_LOSSLESS = 1
@@ -36,14 +36,14 @@ const _smart_pick_file_keywords = [
 
 signal import_finished
 
-onready var _texture_editors = [
+@onready var _texture_editors = [
 	$Import/HS/VB2/HB/Albedo,
 	$Import/HS/VB2/HB/Bump,
 	$Import/HS/VB2/HB/Normal,
 	$Import/HS/VB2/HB/Roughness
 ]
 
-onready var _slots_list = $Import/HS/VB/SlotsList
+@onready var _slots_list = $Import/HS/VB/SlotsList
 
 # TODO Some shortcuts to import options were disabled in the GUI because of Godot issues.
 # If users want to customize that, they need to do it on the files directly.
@@ -58,15 +58,15 @@ onready var _slots_list = $Import/HS/VB/SlotsList
 # Godot needs an API to import specific files and choose settings before the first import.
 const _WRITE_IMPORT_FILES = false
 
-onready var _import_mode_selector = $Import/GC/ImportModeSelector
-onready var _compression_selector = $Import/GC/CompressionSelector
-onready var _resolution_spinbox = $Import/GC/ResolutionSpinBox
-onready var _mipmaps_checkbox = $Import/GC/MipmapsCheckbox
-onready var _filter_checkbox = $Import/GC/FilterCheckBox
-onready var _add_slot_button = $Import/HS/VB/HB/AddSlotButton
-onready var _remove_slot_button = $Import/HS/VB/HB/RemoveSlotButton
-onready var _import_directory_line_edit : LineEdit = $Import/HB2/ImportDirectoryLineEdit
-onready var _normalmap_flip_checkbox = $Import/HS/VB2/HB/Normal/NormalMapFlipY
+@onready var _import_mode_selector = $Import/GC/ImportModeSelector
+@onready var _compression_selector = $Import/GC/CompressionSelector
+@onready var _resolution_spinbox = $Import/GC/ResolutionSpinBox
+@onready var _mipmaps_checkbox = $Import/GC/MipmapsCheckbox
+@onready var _filter_checkbox = $Import/GC/FilterCheckBox
+@onready var _add_slot_button = $Import/HS/VB/HB/AddSlotButton
+@onready var _remove_slot_button = $Import/HS/VB/HB/RemoveSlotButton
+@onready var _import_directory_line_edit : LineEdit = $Import/HB2/ImportDirectoryLineEdit
+@onready var _normalmap_flip_checkbox = $Import/HS/VB2/HB/Normal/NormalMapFlipY
 
 var _texture_set : HTerrainTextureSet
 var _undo_redo : UndoRedo
@@ -118,8 +118,8 @@ func _ready():
 		var ed = _texture_editors[src_type]
 		var typename = HTerrainTextureSet.get_source_texture_type_name(src_type)
 		ed.set_label(typename.capitalize())
-		ed.connect("load_pressed", self, "_on_texture_load_pressed", [src_type])
-		ed.connect("clear_pressed", self, "_on_texture_clear_pressed", [src_type])
+		ed.connect(&"load_pressed", self._on_texture_load_pressed, [src_type])
+		ed.connect(&"clear_pressed", self._on_texture_clear_pressed, [src_type])
 	
 	for import_mode in HTerrainTextureSet.MODE_COUNT:
 		var n = HTerrainTextureSet.get_import_mode_name(import_mode)
@@ -130,13 +130,13 @@ func _ready():
 		_compression_selector.add_item(n, compress_mode)
 	
 	_normalmap_material = ShaderMaterial.new()
-	_normalmap_material.shader = HT_NormalMapPreviewShader
+	_normalmap_material.gdshader = HT_NormalMapPreviewShader
 	_texture_editors[HTerrainTextureSet.SRC_TYPE_NORMAL].set_material(_normalmap_material)
 
 
 func setup_dialogs(parent: Node):
 	var d = HT_EditorUtil.create_open_image_dialog()
-	d.connect("file_selected", self, "_on_LoadTextureDialog_file_selected")
+	d.connect(&"file_selected", self._on_LoadTextureDialog_file_selected)
 	_load_texture_dialog = d
 	parent.add_child(d)
 	
@@ -151,13 +151,13 @@ func setup_dialogs(parent: Node):
 	parent.add_child(_info_popup)
 	
 	d = ConfirmationDialog.new()
-	d.connect("confirmed", self, "_on_delete_confirmation_popup_confirmed")
+	d.connect(&"confirmed", self._on_delete_confirmation_popup_confirmed)
 	_delete_confirmation_popup = d
 	parent.add_child(_delete_confirmation_popup)
 	
 	d = HT_EditorUtil.create_open_dir_dialog()
 	d.window_title = "Choose import directory"
-	d.connect("dir_selected", self, "_on_OpenDirDialog_dir_selected")
+	d.connect(&"dir_selected", self._on_OpenDirDialog_dir_selected)
 	_open_dir_dialog = d
 	parent.add_child(_open_dir_dialog)
 	
@@ -213,7 +213,7 @@ func set_texture_set(texture_set: HTerrainTextureSet):
 					continue
 				
 				var import_data := _parse_json_file(texture.resource_path)
-				if import_data.empty() or not import_data.has("src"):
+				if import_data.is_empty() or not import_data.has("src"):
 					continue
 				
 				var src_types = HTerrainTextureSet.get_src_types_from_type(type)
@@ -239,7 +239,7 @@ func set_texture_set(texture_set: HTerrainTextureSet):
 				continue
 			
 			var import_data := _parse_json_file(texture_array.resource_path)
-			if import_data.empty() or not import_data.has("layers"):
+			if import_data.is_empty() or not import_data.has("layers"):
 				continue
 			
 			var layers_data = import_data["layers"]
@@ -290,7 +290,7 @@ func _update_ui_from_data():
 	_slots_list.clear()
 	
 	for slot_index in len(_slots_data):
-		_slots_list.add_item("Texture {0}".format([slot_index]))
+		_slots_list.add_item("Texture2D {0}".format([slot_index]))
 	
 	_resolution_spinbox.value = _import_settings.resolution
 	_mipmaps_checkbox.pressed = _import_settings.mipmaps
@@ -457,13 +457,13 @@ static func _get_files_in_directory(dirpath: String, logger) -> Array:
 	var err := dir.open(dirpath)
 	if err != OK:
 		logger.error("Could not open directory {0}: {1}" \
-			.format([dirpath, HT_Errors.get_message(err)]))
+			super.format([dirpath, HT_Errors.get_message(err)]))
 		return []
 	
 	err = dir.list_dir_begin(true, true)
 	if err != OK:
 		logger.error("Could not probe directory {0}: {1}" \
-			.format([dirpath, HT_Errors.get_message(err)]))
+			super.format([dirpath, HT_Errors.get_message(err)]))
 		return []
 	
 	var files := []
@@ -655,7 +655,7 @@ func _on_ImportButton_pressed():
 	_editor_file_system.scan()
 	while _editor_file_system.is_scanning():
 		_logger.debug("Waiting for scan to complete...")
-		yield(get_tree(), "idle_frame")
+		await get_tree().process_frame
 		if not is_inside_tree():
 			# oops?
 			return
@@ -663,7 +663,7 @@ func _on_ImportButton_pressed():
 	# Looks like import takes place AFTER scanning, so let's yield some more...
 	for fd in len(files_data) * 2:
 		_logger.debug("Yielding some more")
-		yield(get_tree(), "idle_frame")
+		await get_tree().process_frame
 
 	var failed_resource_paths := []
 	
@@ -678,7 +678,7 @@ func _on_ImportButton_pressed():
 			if texture == null:
 				failed_resource_paths.append(fd.path)
 				continue
-			assert(texture is Texture)
+			assert(texture is Texture2D)
 			fd["texture"] = texture
 
 	else:
@@ -686,11 +686,11 @@ func _on_ImportButton_pressed():
 			var texture_array = load(fd.path)
 			if texture_array == null:
 				failed_resource_paths.append(fd.path)
-			assert(texture_array is TextureArray)
+			assert(texture_array is Texture2DArray)
 			fd["texture_array"] = texture_array
 
 	if len(failed_resource_paths) > 0:
-		var failed_list = PoolStringArray(failed_resource_paths).join("\n")
+		var failed_list = PackedStringArray(failed_resource_paths).join("\n")
 		_show_error("Some resources failed to load:\n" + failed_list)
 
 	else:
@@ -743,7 +743,7 @@ func _generate_packed_textures_files_data(import_dir: String, prefix: String) ->
 			importer_compress_mode = HT_StreamTextureImporter.COMPRESS_RAW
 		_:
 			return HT_Result.new(false, "Unknown compress mode {0}, might be a bug" \
-				.format([_import_settings.compression]))
+				super.format([_import_settings.compression]))
 
 	for type in HTerrainTextureSet.TYPE_COUNT:
 		var src_types := HTerrainTextureSet.get_src_types_from_type(type)
@@ -822,7 +822,7 @@ func _generate_save_packed_texture_arrays_files_data(
 			importer_compress_mode = HT_TextureLayeredImporter.COMPRESS_RAW
 		_:
 			return HT_Result.new(false, "Unknown compress mode {0}, might be a bug" \
-				.format([_import_settings.compression]))
+				super.format([_import_settings.compression]))
 
 	for type in HTerrainTextureSet.TYPE_COUNT:
 		var src_types := HTerrainTextureSet.get_src_types_from_type(type)

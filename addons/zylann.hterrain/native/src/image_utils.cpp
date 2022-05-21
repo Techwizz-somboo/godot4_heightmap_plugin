@@ -144,7 +144,7 @@ void ImageUtils::lerp_color_brush(Ref<Image> image_ref, Ref<Image> brush_ref, Ve
 	Image &brush = **brush_ref;
 
 	generic_brush_op(image, brush, p_pos, factor, [target_value](Image &image, int x, int y, float b) {
-		const Color c = image.get_pixel(x, y).linear_interpolate(target_value, b);
+		const Color c = image.get_pixel(x, y).lerp(target_value, b);
 		image.set_pixel(x, y, c);
 	});
 }

@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorImportPlugin
 
 const HT_StreamTextureImporter = preload("./stream_texture_importer.gd")
@@ -8,7 +8,7 @@ const HT_Result = preload("../util/result.gd")
 const HT_Logger = preload("../../util/logger.gd")
 
 const IMPORTER_NAME = "hterrain_packed_texture_importer"
-const RESOURCE_TYPE = "StreamTexture"
+const RESOURCE_TYPE = "StreamTexture2D"
 
 var _logger = HT_Logger.get_for(self)
 
@@ -95,16 +95,16 @@ func _import(p_source_path: String, p_save_path: String, options: Dictionary,
 	var err := f.open(p_source_path, File.READ)
 	if err != OK:
 		return HT_Result.new(false, "Could not open file {0}: {1}" \
-			.format([p_source_path, HT_Errors.get_message(err)])) \
-			.with_value(err)
+			super.format([p_source_path, HT_Errors.get_message(err)])) \
+			super.with_value(err)
 	var text := f.get_as_text()
 	f.close()
 	
 	var json_result := JSON.parse(text)
 	if json_result.error != OK:
 		return HT_Result.new(false, "Failed to parse file {0}: {1}" \
-			.format([p_source_path, json_result.error_string])) \
-			.with_value(json_result.error)
+			super.format([p_source_path, json_result.error_string])) \
+			super.with_value(json_result.error)
 	var json_data : Dictionary = json_result.result
 	
 	var resolution : int = int(json_data.resolution)
@@ -116,7 +116,7 @@ func _import(p_source_path: String, p_save_path: String, options: Dictionary,
 	if not result.success:
 		return HT_Result.new(false, 
 			"While importing {0}".format([p_source_path]), result) \
-			.with_value(result.value)
+			super.with_value(result.value)
 
 	var image : Image = result.value
 
@@ -138,7 +138,7 @@ func _import(p_source_path: String, p_save_path: String, options: Dictionary,
 	if not result.success:
 		return HT_Result.new(false, 
 			"While importing {0}".format([p_source_path]), result) \
-			.with_value(result.value)
+			super.with_value(result.value)
 	
 	return HT_Result.new(true).with_value(OK)
 

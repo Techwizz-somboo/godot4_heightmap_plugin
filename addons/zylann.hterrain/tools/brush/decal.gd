@@ -1,4 +1,4 @@
-tool
+@tool
 # Shows a cursor on top of the terrain to preview where the brush will paint
 
 const HT_DirectMeshInstance = preload("../../util/direct_mesh_instance.gd")
@@ -8,14 +8,14 @@ const HT_Util = preload("../../util/util.gd")
 var _mesh_instance : HT_DirectMeshInstance
 var _mesh : PlaneMesh
 var _material = ShaderMaterial.new()
-#var _debug_mesh = CubeMesh.new()
+#var _debug_mesh = BoxMesh.new()
 #var _debug_mesh_instance = null
 
 var _terrain = null
 
 
 func _init():
-	_material.shader = load("res://addons/zylann.hterrain/tools/brush/decal.shader")
+	_material.gdshader = load("res://addons/zylann.hterrain/tools/brush/decal.gdshader")
 	_mesh_instance = HT_DirectMeshInstance.new()
 	_mesh_instance.set_material(_material)
 	
@@ -55,17 +55,17 @@ func set_terrain(terrain):
 		return
 
 	if _terrain != null:
-		_terrain.disconnect("transform_changed", self, "_on_terrain_transform_changed")
+		_terrain.disconnect(&"transform_changed", self._on_terrain_transform_changed)
 		_mesh_instance.exit_world()
 		#_debug_mesh_instance.exit_world()
 
 	_terrain = terrain
 
 	if _terrain != null:
-		_terrain.connect("transform_changed", self, "_on_terrain_transform_changed")
+		_terrain.connect(&"transform_changed", self._on_terrain_transform_changed)
 		_on_terrain_transform_changed(_terrain.get_internal_transform())
-		_mesh_instance.enter_world(terrain.get_world())
-		#_debug_mesh_instance.enter_world(terrain.get_world())
+		_mesh_instance.enter_world(terrain.get_world_3d())
+		#_debug_mesh_instance.enter_world(terrain.get_world_3d())
 
 	update_visibility()
 
@@ -87,7 +87,7 @@ func set_position(p_local_pos: Vector3):
 		_mesh.custom_aabb = aabb
 		#_debug_mesh.size = aabb.size
 	
-	var trans = Transform(Basis(), p_local_pos)
+	var trans = Transform3D(Basis(), p_local_pos)
 	var terrain_gt = _terrain.get_internal_transform()
 	trans = terrain_gt * trans
 	_mesh_instance.set_transform(trans)

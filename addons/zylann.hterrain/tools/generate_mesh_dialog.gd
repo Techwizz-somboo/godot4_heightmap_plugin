@@ -1,4 +1,4 @@
-tool
+@tool
 extends WindowDialog
 
 signal generate_selected(lod)
@@ -6,8 +6,8 @@ signal generate_selected(lod)
 const HTerrainMesher = preload("../hterrain_mesher.gd")
 const HT_Util = preload("../util/util.gd")
 
-onready var _preview_label = $VBoxContainer/PreviewLabel
-onready var _lod_spinbox = $VBoxContainer/HBoxContainer/LODSpinBox
+@onready var _preview_label = $VBoxContainer/PreviewLabel
+@onready var _lod_spinbox = $VBoxContainer/HBoxContainer/LODSpinBox
 
 var _terrain = null
 

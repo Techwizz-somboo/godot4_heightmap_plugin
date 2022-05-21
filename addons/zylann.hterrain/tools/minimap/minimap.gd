@@ -1,10 +1,10 @@
-tool
+@tool
 extends Control
 
 const HT_Util = preload("../../util/util.gd")
 const HTerrainData = preload("../../hterrain_data.gd")
 
-const HT_MinimapShader = preload("./minimap_normal.shader")
+const HT_MinimapShader = preload("./minimap_normal.gdshader")
 # TODO Can't preload because it causes the plugin to fail loading if assets aren't imported
 #const HT_WhiteTexture = preload("../icons/white.png")
 const WHITE_TEXTURE_PATH = "res://addons/zylann.hterrain/tools/icons/white.png"
@@ -12,13 +12,13 @@ const WHITE_TEXTURE_PATH = "res://addons/zylann.hterrain/tools/icons/white.png"
 const MODE_QUADTREE = 0
 const MODE_NORMAL = 1
 
-onready var _popup_menu = $PopupMenu
-onready var _color_rect = $ColorRect
-onready var _overlay = $Overlay
+@onready var _popup_menu = $PopupMenu
+@onready var _color_rect = $ColorRect
+@onready var _overlay = $Overlay
 
 var _terrain = null
 var _mode := MODE_NORMAL
-var _camera_transform := Transform()
+var _camera_transform := Transform3D()
 
 
 func _ready():
@@ -37,7 +37,7 @@ func set_terrain(node):
 		set_process(_terrain != null)
 
 
-func set_camera_transform(ct: Transform):
+func set_camera_transform(ct: Transform3D):
 	if _camera_transform == ct:
 		return
 	if _terrain == null:
@@ -46,10 +46,10 @@ func set_camera_transform(ct: Transform):
 	if data == null:
 		return
 	var to_local = _terrain.get_internal_transform().affine_inverse()
-	var pos := _get_xz(to_local.xform(_camera_transform.origin))
+	var pos := _get_xz(to_local * (_camera_transform.origin))
 	var size := Vector2(data.get_resolution(), data.get_resolution())
 	pos /= size
-	var dir := _get_xz(to_local.basis.xform(-_camera_transform.basis.z)).normalized()
+	var dir := _get_xz(to_local.basis * (-_camera_transform.basis.z)).normalized()
 	_overlay.set_cursor_position_normalized(pos, dir)
 	_camera_transform = ct
 
@@ -62,10 +62,10 @@ func _gui_input(event: InputEvent):
 	if event is InputEventMouseButton:
 		if event.pressed:
 			match event.button_index:
-				BUTTON_RIGHT:
+				MOUSE_BUTTON_RIGHT:
 					_popup_menu.rect_position = get_global_mouse_position()
 					_popup_menu.popup()
-				BUTTON_LEFT:
+				MOUSE_BUTTON_LEFT:
 					# Teleport there?
 					pass
 
@@ -83,7 +83,7 @@ func _set_mode(mode: int):
 		_color_rect.hide()
 	else:
 		var mat = ShaderMaterial.new()
-		mat.shader = HT_MinimapShader
+		mat.gdshader = HT_MinimapShader
 		_color_rect.material = mat
 		_color_rect.show()
 		_update_normal_material()
@@ -101,7 +101,7 @@ func _update_normal_material():
 	var normalmap = data.get_texture(HTerrainData.CHANNEL_NORMAL)
 	_set_if_changed(_color_rect.material, "u_normalmap", normalmap)
 
-	var globalmap : Texture
+	var globalmap : Texture2D
 	if data.has_texture(HTerrainData.CHANNEL_GLOBAL_ALBEDO, 0):
 		globalmap = data.get_texture(HTerrainData.CHANNEL_GLOBAL_ALBEDO)
 	if globalmap == null:

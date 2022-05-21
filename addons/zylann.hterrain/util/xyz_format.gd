@@ -1,4 +1,4 @@
-tool
+@tool
 
 # XYZ files are text files containing a list of 3D points.
 # They can be found in GIS software as an export format for heightmaps.

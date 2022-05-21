@@ -1,8 +1,8 @@
 [remap]
 
 importer="texture"
-type="StreamTexture"
-path="res://.import/icon_anchor_center.svg-d48605c4035ec4a02ae8159aea6db85f.stex"
+type="StreamTexture2D"
+path="res://.godot/imported/icon_anchor_center.svg-d48605c4035ec4a02ae8159aea6db85f.stex"
 metadata={
 "vram_texture": false
 }
@@ -10,7 +10,7 @@ metadata={
 [deps]
 
 source_file="res://addons/zylann.hterrain/tools/icons/icon_anchor_center.svg"
-dest_files=[ "res://.import/icon_anchor_center.svg-d48605c4035ec4a02ae8159aea6db85f.stex" ]
+dest_files=["res://.godot/imported/icon_anchor_center.svg-d48605c4035ec4a02ae8159aea6db85f.stex"]
 
 [params]
 

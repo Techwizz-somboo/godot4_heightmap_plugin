@@ -1,4 +1,4 @@
-tool
+@tool
 extends Container
 
 const SEPARATION = 2

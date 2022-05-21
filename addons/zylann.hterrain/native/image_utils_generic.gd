@@ -175,7 +175,7 @@ func lerp_color_brush(im: Image, brush: Image, pos: Vector2,
 			var bx = x - min_noclamp_x
 
 			var shape_value = brush.get_pixel(bx, by).r
-			var c = im.get_pixel(x, y).linear_interpolate(target_value, factor * shape_value)
+			var c = im.get_pixel(x, y).lerp(target_value, factor * shape_value)
 			im.set_pixel(x, y, c)
 
 	im.lock()

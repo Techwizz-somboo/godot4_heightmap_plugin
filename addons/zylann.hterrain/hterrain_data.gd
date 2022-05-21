@@ -2,7 +2,7 @@
 # Holds data of the terrain.
 # This is mostly a set of textures using specific formats, some precalculated, and metadata.
 
-tool
+@tool
 extends Resource
 
 const HT_Grid = preload("./util/grid.gd")
@@ -29,7 +29,7 @@ const _map_types = {
 	CHANNEL_HEIGHT: {
 		name = "height",
 		shader_param_name = "u_terrain_heightmap",
-		texture_flags = Texture.FLAG_FILTER,
+		texture_flags = Texture2D.FLAG_FILTER,
 		texture_format = Image.FORMAT_RH,
 		default_fill = null,
 		default_count = 1,
@@ -40,7 +40,7 @@ const _map_types = {
 	CHANNEL_NORMAL: {
 		name = "normal",
 		shader_param_name = "u_terrain_normalmap",
-		texture_flags = Texture.FLAG_FILTER,
+		texture_flags = Texture2D.FLAG_FILTER,
 		texture_format = Image.FORMAT_RGB8,
 		default_fill = Color(0.5, 0.5, 1.0),
 		default_count = 1,
@@ -56,7 +56,7 @@ const _map_types = {
 			"u_terrain_splatmap_2",
 			"u_terrain_splatmap_3"
 		],
-		texture_flags = Texture.FLAG_FILTER,
+		texture_flags = Texture2D.FLAG_FILTER,
 		texture_format = Image.FORMAT_RGBA8,
 		default_fill = [Color(1, 0, 0, 0), Color(0, 0, 0, 0)],
 		default_count = 1,
@@ -67,7 +67,7 @@ const _map_types = {
 	CHANNEL_COLOR: {
 		name = "color",
 		shader_param_name = "u_terrain_colormap",
-		texture_flags = Texture.FLAG_FILTER,
+		texture_flags = Texture2D.FLAG_FILTER,
 		texture_format = Image.FORMAT_RGBA8,
 		default_fill = Color(1, 1, 1, 1),
 		default_count = 1,
@@ -78,7 +78,7 @@ const _map_types = {
 	CHANNEL_DETAIL: {
 		name = "detail",
 		shader_param_name = "u_terrain_detailmap",
-		texture_flags = Texture.FLAG_FILTER,
+		texture_flags = Texture2D.FLAG_FILTER,
 		texture_format = Image.FORMAT_R8,
 		default_fill = Color(0, 0, 0),
 		default_count = 0,
@@ -89,7 +89,7 @@ const _map_types = {
 	CHANNEL_GLOBAL_ALBEDO: {
 		name = "global_albedo",
 		shader_param_name = "u_terrain_globalmap",
-		texture_flags = Texture.FLAG_FILTER | Texture.FLAG_MIPMAPS,
+		texture_flags = Texture2D.FLAG_FILTER | Texture2D.FLAG_MIPMAPS,
 		texture_format = Image.FORMAT_RGB8,
 		default_fill = null,
 		default_count = 0,
@@ -111,7 +111,7 @@ const _map_types = {
 	CHANNEL_SPLAT_WEIGHT: {
 		name = "splat_weight",
 		shader_param_name = "u_terrain_splat_weight_map",
-		texture_flags = Texture.FLAG_FILTER,
+		texture_flags = Texture2D.FLAG_FILTER,
 		texture_format = Image.FORMAT_RG8,
 		default_fill = Color(1, 0, 0),
 		default_count = 0,
@@ -144,8 +144,8 @@ signal map_changed(type, index)
 # A map is a texture covering the terrain.
 # The usage of a map depends on its type (heightmap, normalmap, splatmap...).
 class HT_Map:
-	var texture: Texture
-	# Reference used in case we need the data CPU-side
+	var texture: Texture2D
+	# RefCounted used in case we need the data CPU-side
 	var image: Image
 	# ID used for saving, because when adding/removing maps,
 	# we shouldn't rename texture files just because the indexes change.
@@ -369,8 +369,8 @@ func get_interpolated_height_at(pos: Vector3) -> float:
 
 # Gets all heights within the given rectangle in cells.
 # This height is raw and doesn't account for scaling of the terrain node.
-# Data is returned as a PoolRealArray.
-func get_heights_region(x0: int, y0: int, w: int, h: int) -> PoolRealArray:
+# Data is returned as a PackedFloat32Array.
+func get_heights_region(x0: int, y0: int, w: int, h: int) -> PackedFloat32Array:
 	var im = get_image(CHANNEL_HEIGHT)
 	assert(im != null)
 	
@@ -379,7 +379,7 @@ func get_heights_region(x0: int, y0: int, w: int, h: int) -> PoolRealArray:
 	var max_x := HT_Util.clamp_int(x0 + w, 0, im.get_width() + 1)
 	var max_y := HT_Util.clamp_int(y0 + h, 0, im.get_height() + 1)
 
-	var heights := PoolRealArray()
+	var heights := PackedFloat32Array()
 
 	var area = (max_x - min_x) * (max_y - min_y)
 	if area == 0:
@@ -403,8 +403,8 @@ func get_heights_region(x0: int, y0: int, w: int, h: int) -> PoolRealArray:
 
 # Gets all heights.
 # This height is raw and doesn't account for scaling of the terrain node.
-# Data is returned as a PoolRealArray.
-func get_all_heights() -> PoolRealArray:
+# Data is returned as a PackedFloat32Array.
+func get_all_heights() -> PackedFloat32Array:
 	return get_heights_region(0, 0, _resolution, _resolution)
 
 
@@ -618,8 +618,8 @@ func _upload_region(channel: int, index: int, min_x: int, min_y: int, size_x: in
 		texture.create_from_image(image, flags)
 
 	else:
-		if VisualServer.has_method("texture_set_data_partial"):
-			VisualServer.texture_set_data_partial( \
+		if RenderingServer.has_method("texture_set_data_partial"):
+			RenderingServer.texture_set_data_partial( \
 				texture.get_rid(), image, \
 				min_x, min_y, \
 				size_x, size_y, \
@@ -652,7 +652,7 @@ func _upload_region(channel: int, index: int, min_x: int, min_y: int, size_x: in
 	#_logger.debug(str("Channel updated ", channel))
 
 	#var time_elapsed = OS.get_ticks_msec() - time_before
-	#_logger.debug(str("Texture upload time: ", time_elapsed, "ms"))
+	#_logger.debug(str("Texture2D upload time: ", time_elapsed, "ms"))
 
 
 # Gets how many instances of a given map are present in the terrain data.
@@ -734,7 +734,7 @@ func get_image(map_type: int, index := 0) -> Image:
 	return maps[index].image
 
 
-func get_texture(map_type: int, index := 0, writable := false) -> Texture:
+func get_texture(map_type: int, index := 0, writable := false) -> Texture2D:
 	var maps : Array = _maps[map_type]
 	var map : HT_Map = maps[index]
 
@@ -985,7 +985,7 @@ func _deserialize_metadata(dict: Dictionary) -> bool:
 
 	if dict.version != META_VERSION:
 		_logger.error("Terrain metadata version mismatch. Got {0}, expected {1}" \
-			.format([dict.version, META_VERSION]))
+			super.format([dict.version, META_VERSION]))
 		return false
 
 	var data = dict["maps"]
@@ -1083,7 +1083,7 @@ func _save_map(dir_path: String, map_type: int, index: int) -> bool:
 		var err = ResourceSaver.save(fpath, im)
 		if err != OK:
 			_logger.error("Could not save '{0}', error {1}" \
-				.format([fpath, HT_Errors.get_message(err)]))
+				super.format([fpath, HT_Errors.get_message(err)]))
 			return false
 		_try_delete_0_8_0_heightmap(fpath.get_basename(), _logger)
 
@@ -1099,13 +1099,13 @@ static func _try_write_default_import_options(fpath: String, channel: int, logge
 	
 	var map_info = _map_types[channel]
 	var texture_flags: int = map_info.texture_flags
-	var filter := (texture_flags & Texture.FLAG_FILTER) != 0
+	var filter := (texture_flags & Texture2D.FLAG_FILTER) != 0
 	var srgb: bool = map_info.srgb
 
 	var defaults = {
 		"remap": {
 			"importer": "texture",
-			"type": "StreamTexture"
+			"type": "StreamTexture2D"
 		},
 		"deps": {
 			"source_file": fpath
@@ -1168,7 +1168,7 @@ func _load_map(dir: String, map_type: int, index: int) -> bool:
 			# The texture is imported as Image,
 			# perhaps the user wants it to be accessible from RAM in game.
 			_logger.debug("Map {0} is imported as Image. An ImageTexture will be generated." \
-					.format([get_map_debug_name(map_type, index)]))
+					super.format([get_map_debug_name(map_type, index)]))
 			map.image = tex
 			tex = ImageTexture.new()
 			var map_type_info = _map_types[map_type]
@@ -1214,7 +1214,7 @@ func _ensure_map_format(im: Image, map_type: int, index: int):
 	var expected_format = _map_types[map_type].texture_format
 	if format != expected_format:
 		_logger.warn("Map {0} loaded as format {1}, expected {2}. Will be converted." \
-			.format([get_map_debug_name(map_type, index), format, expected_format]))
+			super.format([get_map_debug_name(map_type, index), format, expected_format]))
 		im.convert(expected_format)
 
 
@@ -1228,7 +1228,7 @@ static func _try_load_0_8_0_heightmap(fpath: String, channel: int, existing_imag
 	var err = f.open(fpath, File.READ)
 	if err != OK:
 		logger.error("Could not open '{0}' for reading, error {1}" \
-			.format([fpath, HT_Errors.get_message(err)]))
+			super.format([fpath, HT_Errors.get_message(err)]))
 		return false
 
 	var width = f.get_32()
@@ -1238,7 +1238,7 @@ static func _try_load_0_8_0_heightmap(fpath: String, channel: int, existing_imag
 	var data = f.get_buffer(data_size)
 	if data.size() != data_size:
 		logger.error("Unexpected end of buffer, expected size {0}, got {1}" \
-			.format([data_size, data.size()]))
+			super.format([data_size, data.size()]))
 		return false
 
 	var im = existing_image
@@ -1255,7 +1255,7 @@ static func _try_delete_0_8_0_heightmap(fpath: String, logger):
 		var err = d.remove(fpath)
 		if err != OK:
 			logger.error("Could not erase file '{0}', error {1}" \
-				.format([fpath, HT_Errors.get_message(err)]))
+				super.format([fpath, HT_Errors.get_message(err)]))
 
 
 # Imports images into the terrain data by converting them to the internal format.
@@ -1577,9 +1577,9 @@ class HT_CellRaycastContext:
 #	func _spawn_box(pos: Vector3, r: float):
 #		if not Input.is_key_pressed(KEY_CONTROL):
 #			return
-#		var mi = MeshInstance.new()
-#		mi.mesh = CubeMesh.new()
-#		mi.translation = pos * dbg.map_scale
+#		var mi = MeshInstance3D.new()
+#		mi.mesh = BoxMesh.new()
+#		mi.position = pos * dbg.map_scale
 #		mi.scale = Vector3(r, r, r)
 #		dbg.add_child(mi)
 #		mi.owner = dbg.get_tree().edited_scene_root
@@ -1680,7 +1680,7 @@ func _get_map_filename(map_type: int, index: int) -> String:
 
 
 static func get_map_shader_param_name(map_type: int, index: int) -> String:
-	var param_name = _map_types[map_type].shader_param_name
+	var param_name = _map_types[map_type].gdshader_param_name
 	if typeof(param_name) == TYPE_STRING:
 		return param_name
 	return param_name[index]
@@ -1689,7 +1689,7 @@ static func get_map_shader_param_name(map_type: int, index: int) -> String:
 # TODO Can't type hint because it returns a nullable array
 #static func get_map_type_and_index_from_shader_param_name(p_name: String):
 #	for map_type in _map_types:
-#		var pn = _map_types[map_type].shader_param_name
+#		var pn = _map_types[map_type].gdshader_param_name
 #		if typeof(pn) == TYPE_STRING:
 #			if pn == p_name:
 #				return [map_type, 0]

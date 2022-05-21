@@ -32,7 +32,7 @@ func duplicate():
 	p.debug_name = debug_name
 	p.clear = clear
 	p.texture = texture
-	p.shader = shader
+	p.gdshader = shader
 	p.params = params
 	p.padding = padding
 	p.iterations = iterations

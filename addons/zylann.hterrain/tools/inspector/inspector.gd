@@ -3,7 +3,7 @@
 # It generates controls for a provided list of properties,
 # which is easier to maintain than placing them by hand and connecting things in the editor.
 
-tool
+@tool
 extends Control
 
 const USAGE_FILE = "file"
@@ -59,8 +59,8 @@ var _edit_signal := true
 var _editors := {}
 
 # Had to separate the container because otherwise I can't open dialogs properly...
-onready var _grid_container = get_node("GridContainer")
-onready var _file_dialog = get_node("OpenFileDialog")
+@onready var _grid_container = get_node(^"GridContainer")
+@onready var _file_dialog = get_node(^"OpenFileDialog")
 
 
 # Test
@@ -71,11 +71,11 @@ onready var _file_dialog = get_node("OpenFileDialog")
 #			"randomizable": true
 #		},
 #		"base_height": {
-#			"type": TYPE_REAL,
+#			"type": TYPE_FLOAT,
 #			"range": {"min": -1000.0, "max": 1000.0, "step": 0.1}
 #		},
 #		"height_range": {
-#			"type": TYPE_REAL,
+#			"type": TYPE_FLOAT,
 #			"range": {"min": -1000.0, "max": 1000.0, "step": 0.1 },
 #			"default_value": 500.0
 #		},
@@ -192,12 +192,12 @@ func _make_editor(key: String, prop: Dictionary):
 	
 	match prop.type:
 		TYPE_INT, \
-		TYPE_REAL:
+		TYPE_FLOAT:
 			var pre = null
 			if prop.has("randomizable") and prop.randomizable:
 				editor = HBoxContainer.new()
 				pre = Button.new()
-				pre.connect("pressed", self, "_randomize_property_pressed", [key])
+				pre.connect(&"pressed", self._randomize_property_pressed, [key])
 				pre.text = "Randomize"
 				editor.add_child(pre)
 			
@@ -213,7 +213,7 @@ func _make_editor(key: String, prop: Dictionary):
 				# TODO We assume index, actually
 				getter = funcref(option_button, "get_selected_id")
 				setter = funcref(option_button, "select")
-				option_button.connect("item_selected", self, "_property_edited", [key])
+				option_button.connect(&"item_selected", self._property_edited, [key])
 				
 				editor = option_button
 				
@@ -223,7 +223,7 @@ func _make_editor(key: String, prop: Dictionary):
 				# Spinboxes have shit UX when not expanded...
 				spinbox.rect_min_size = Vector2(120, 16) 
 				_setup_range_control(spinbox, prop)
-				spinbox.connect("value_changed", self, "_property_edited", [key])
+				spinbox.connect(&"value_changed", self._property_edited, [key])
 				
 				# TODO In case the type is INT, the getter should return an integer!
 				getter = funcref(spinbox, "get_value")
@@ -265,28 +265,28 @@ func _make_editor(key: String, prop: Dictionary):
 				
 				var load_button = Button.new()
 				load_button.text = "..."
-				load_button.connect("pressed", self, "_on_ask_load_file", [key, exts])
+				load_button.connect(&"pressed", self._on_ask_load_file, [key, exts])
 				editor.add_child(load_button)
 				
-				line_edit.connect("text_entered", self, "_property_edited", [key])
+				line_edit.connect(&"text_entered", self._property_edited, [key])
 				getter = funcref(line_edit, "get_text")
 				setter = funcref(line_edit, "set_text")
 				
 			else:
 				editor = LineEdit.new()
-				editor.connect("text_entered", self, "_property_edited", [key])
+				editor.connect(&"text_entered", self._property_edited, [key])
 				getter = funcref(editor, "get_text")
 				setter = funcref(editor, "set_text")
 		
 		TYPE_COLOR:
 			editor = ColorPickerButton.new()
-			editor.connect("color_changed", self, "_property_edited", [key])
+			editor.connect(&"color_changed", self._property_edited, [key])
 			getter = funcref(editor, "get_pick_color")
 			setter = funcref(editor, "set_pick_color")
 			
 		TYPE_BOOL:
 			editor = CheckBox.new()
-			editor.connect("toggled", self, "_property_edited", [key])
+			editor.connect(&"toggled", self._property_edited, [key])
 			getter = funcref(editor, "is_pressed")
 			setter = funcref(editor, "set_pressed")
 		
@@ -304,12 +304,12 @@ func _make_editor(key: String, prop: Dictionary):
 				
 				var load_button = Button.new()
 				load_button.text = "Load..."
-				load_button.connect("pressed", self, "_on_ask_load_texture", [key])
+				load_button.connect(&"pressed", self._on_ask_load_texture, [key])
 				editor.add_child(load_button)
 
 				var clear_button = Button.new()
 				clear_button.text = "Clear"
-				clear_button.connect("pressed", self, "_on_ask_clear_texture", [key])
+				clear_button.connect(&"pressed", self._on_ask_clear_texture, [key])
 				editor.add_child(clear_button)
 				
 				ed = HT_InspectorResourceEditor.new()
@@ -331,7 +331,7 @@ func _make_editor(key: String, prop: Dictionary):
 			xed.min_value = -10000
 			xed.max_value = 10000
 			# TODO This will fire twice (for each coordinate), hmmm...
-			xed.connect("value_changed", ed, "_component_changed", [0])
+			xed.connect(&"value_changed", ed._component_changed, [0])
 			editor.add_child(xed)
 			
 			var ylabel = Label.new()
@@ -342,12 +342,12 @@ func _make_editor(key: String, prop: Dictionary):
 			yed.step = 0.01
 			yed.min_value = -10000
 			yed.max_value = 10000
-			yed.connect("value_changed", ed, "_component_changed", [1])
+			yed.connect(&"value_changed", ed._component_changed, [1])
 			editor.add_child(yed)
 			
 			ed.xed = xed
 			ed.yed = yed
-			ed.connect("value_changed", self, "_property_edited", [key])
+			ed.connect(&"value_changed", self._property_edited, [key])
 			getter = funcref(ed, "get_value")
 			setter = funcref(ed, "set_value")
 		
@@ -403,9 +403,9 @@ func _randomize_property_pressed(key):
 				v = randi() % (prop.range.max - prop.range.min) + prop.range.min
 			else:
 				v = randi() - 0x7fffffff
-		TYPE_REAL:
+		TYPE_FLOAT:
 			if prop.has("range"):
-				v = rand_range(prop.range.min, prop.range.max)
+				v = randf_range(prop.range.min, prop.range.max)
 			else:
 				v = randf()			
 	
@@ -431,7 +431,7 @@ func _open_file_dialog(filters, callback, binds, access):
 	_file_dialog.clear_filters()
 	for filter in filters:
 		_file_dialog.add_filter(filter)
-	_file_dialog.connect("popup_hide", self, "call_deferred", ["_on_file_dialog_close"], 
+	_file_dialog.connect(&"popup_hide", self.call_deferred, ["_on_file_dialog_close"], 
 		CONNECT_ONESHOT)
 	_file_dialog.connect("file_selected", self, callback, binds)
 	_file_dialog.popup_centered_ratio(0.7)

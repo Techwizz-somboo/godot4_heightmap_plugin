@@ -1,4 +1,4 @@
-tool
+@tool
 # Independent quad tree designed to handle LOD
 
 class HT_QTLQuad:

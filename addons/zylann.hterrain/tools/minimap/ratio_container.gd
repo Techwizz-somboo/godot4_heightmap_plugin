@@ -1,10 +1,10 @@
 # Simple container keeping its children under the same aspect ratio
 
-tool
+@tool
 extends Container
 
 
-export(float) var ratio := 1.0
+@export var ratio := 1.0
 
 
 func _notification(what: int):

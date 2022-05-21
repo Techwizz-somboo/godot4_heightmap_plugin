@@ -1,4 +1,4 @@
-tool
+@tool
 
 # Brush properties (shape, transform, timing and opacity).
 # Other attributes like color, height or texture index are tool-specific,
@@ -108,7 +108,7 @@ func set_shapes(shapes: Array):
 	assert(len(shapes) >= 1)
 	for s in shapes:
 		assert(s != null)
-		assert(s is Texture)
+		assert(s is Texture2D)
 	_shapes = shapes.duplicate(false)
 	if _shape_index >= len(_shapes):
 		_shape_index = len(_shapes) - 1
@@ -119,11 +119,11 @@ func get_shapes() -> Array:
 	return _shapes.duplicate(false)
 
 
-func get_shape(i: int) -> Texture:
+func get_shape(i: int) -> Texture2D:
 	return _shapes[i]
 
 
-static func load_shape_from_image_file(fpath: String, logger, retries = 1) -> Texture:
+static func load_shape_from_image_file(fpath: String, logger, retries = 1) -> Texture2D:
 	var im := Image.new()
 	var err := im.load(fpath)
 	if err != OK:
@@ -133,14 +133,14 @@ static func load_shape_from_image_file(fpath: String, logger, retries = 1) -> Te
 			# Attempting to workaround this by retrying (I suspect it's because of non-initialized
 			# variable in Godot's C++ code...)
 			logger.error("Could not load image at '{0}', error {1}. Retrying..." \
-				.format([fpath, HT_Errors.get_message(err)]))
+				super.format([fpath, HT_Errors.get_message(err)]))
 			return load_shape_from_image_file(fpath, logger, retries - 1)
 		else:
 			logger.error("Could not load image at '{0}', error {1}" \
-				.format([fpath, HT_Errors.get_message(err)]))
+				super.format([fpath, HT_Errors.get_message(err)]))
 			return null
 	var tex := ImageTexture.new()
-	tex.create_from_image(im, Texture.FLAG_FILTER)
+	tex.create_from_image(im, Texture2D.FLAG_FILTER)
 	return tex
 
 	
@@ -162,7 +162,7 @@ func configure_paint_input(painters: Array, position: Vector2, pressure: float) 
 	
 	for painter in painters:
 		if _random_rotation:
-			painter.set_brush_rotation(rand_range(-PI, PI))
+			painter.set_brush_rotation(randf_range(-PI, PI))
 		else:
 			painter.set_brush_rotation(0.0)
 

@@ -1,4 +1,4 @@
-tool
+@tool
 extends WindowDialog
 
 const HT_Util = preload("../../util/util.gd")
@@ -10,9 +10,9 @@ const HT_XYZFormat = preload("../../util/xyz_format.gd")
 
 signal permanent_change_performed(message)
 
-onready var _inspector = $VBoxContainer/Inspector
-onready var _errors_label = $VBoxContainer/ColorRect/ScrollContainer/VBoxContainer/Errors
-onready var _warnings_label = $VBoxContainer/ColorRect/ScrollContainer/VBoxContainer/Warnings
+@onready var _inspector = $VBoxContainer/Inspector
+@onready var _errors_label = $VBoxContainer/ColorRect/ScrollContainer/VBoxContainer/Errors
+@onready var _warnings_label = $VBoxContainer/ColorRect/ScrollContainer/VBoxContainer/Warnings
 
 const RAW_LITTLE_ENDIAN = 0
 const RAW_BIG_ENDIAN = 1
@@ -35,12 +35,12 @@ func _ready():
 			"enabled": false
 		},
 		"min_height": {
-			"type": TYPE_REAL,
+			"type": TYPE_FLOAT,
 			"range": {"min": -2000.0, "max": 2000.0, "step": 1.0},
 			"default_value": 0.0
 		},
 		"max_height": {
-			"type": TYPE_REAL,
+			"type": TYPE_FLOAT,
 			"range": {"min": -2000.0, "max": 2000.0, "step": 1.0},
 			"default_value": 400.0
 		},
@@ -57,7 +57,7 @@ func _ready():
 	})
 	
 	# Testing
-#	_errors_label.text = "- Hello World!"
+#	_errors_label.text = "- Hello World3D!"
 #	_warnings_label.text = "- Yolo Jesus!"
 
 
@@ -75,7 +75,7 @@ static func _format_feedbacks(feed):
 	var a = []
 	for s in feed:
 		a.append("- " + s)
-	return PoolStringArray(a).join("\n")
+	return PackedStringArray(a).join("\n")
 
 
 func _clear_feedback():
@@ -237,7 +237,7 @@ static func _load_image_size(path: String, logger: HT_Logger) -> Dictionary:
 		var err := im.load(path)
 		if err != OK:
 			logger.error("An error occurred loading image '{0}', code {1}" \
-				.format([path, err]))
+				super.format([path, err]))
 			return { "error": err }
 
 		return { "width": im.get_width(), "height": im.get_height() }
@@ -258,7 +258,7 @@ static func _load_image_size(path: String, logger: HT_Logger) -> Dictionary:
 			return { "error": "RAW image is not square" }
 		
 		logger.debug("Deduced RAW heightmap resolution: {0}*{1}, for a length of {2}" \
-			.format([size, size, flen]))
+			super.format([size, size, flen]))
 
 		return { "width": size, "height": size }
 

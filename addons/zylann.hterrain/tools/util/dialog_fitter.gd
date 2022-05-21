@@ -5,7 +5,7 @@
 # This script adjusts the size of the parent WindowDialog based on the first Container it finds
 # when the node becomes visible.
 
-tool
+@tool
 # Needs to be a Control, otherwise we don't receive the notification...
 extends Control
 

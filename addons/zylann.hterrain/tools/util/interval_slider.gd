@@ -1,7 +1,7 @@
 
 # Slider with two handles representing an interval.
 
-tool
+@tool
 extends Control
 
 const VALUE_LOW = 0
@@ -22,12 +22,12 @@ func _get_property_list():
 	return [
 		{
 			"name": "min_value",
-			"type": TYPE_REAL,
+			"type": TYPE_FLOAT,
 			"usage": PROPERTY_USAGE_EDITOR
 		},
 		{
 			"name": "max_value",
-			"type": TYPE_REAL,
+			"type": TYPE_FLOAT,
 			"usage": PROPERTY_USAGE_EDITOR
 		},
 		{
@@ -143,11 +143,11 @@ func _set_from_pixel(px: float):
 func _gui_input(event):
 	if event is InputEventMouseButton:
 		if event.pressed:
-			if event.button_index == BUTTON_LEFT:
+			if event.button_index == MOUSE_BUTTON_LEFT:
 				_grabbing = true
 				_set_from_pixel(event.position.x)
 		else:
-			if event.button_index == BUTTON_LEFT:
+			if event.button_index == MOUSE_BUTTON_LEFT:
 				_grabbing = false
 				
 	elif event is InputEventMouseMotion:

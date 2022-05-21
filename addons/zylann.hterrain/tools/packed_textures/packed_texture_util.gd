@@ -1,4 +1,4 @@
-tool
+@tool
 
 const HT_Logger = preload("../../util/logger.gd")
 const HT_Errors = preload("../../util/errors.gd")
@@ -38,8 +38,8 @@ static func generate_image(sources: Dictionary, resolution: int, logger) -> HT_R
 			var err := src_image.load(src_path)
 			if err != OK:
 				return HT_Result.new(false, "Could not open file \"{0}\": {1}" \
-					.format([src_path, HT_Errors.get_message(err)])) \
-					.with_value(err)
+					super.format([src_path, HT_Errors.get_message(err)])) \
+					super.with_value(err)
 			src_image.decompress()
 		
 		src_image.resize(image.get_width(), image.get_height())
